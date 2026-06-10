@@ -23,3 +23,19 @@ Access externally via:
 | RabbitMQ Management UI | 15672 |
 | PostgreSQL             | 5432  |
 ------------------------------------------------------------------------------
+
+Prerequisites
+
+**Verify Docker installation**
+```
+docker --version
+```
+**Start Docker:**
+```
+sudo systemctl start docker
+```
+**Verify Docker daemon:**
+```
+docker ps
+```
+---------------------------------------------------------------------------------------------------------------------------
