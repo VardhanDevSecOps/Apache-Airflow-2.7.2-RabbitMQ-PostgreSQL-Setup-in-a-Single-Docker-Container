@@ -158,9 +158,46 @@ Expected:
 -----------------------------------------------------------------------------------------------------------------------------------------
 **Step 6: Start PostgreSQL**
 ```
-
+service postgresql start
 ```
-
+Create DB:
+```
+su - postgres
+```
+```
+psql
+```
+Inside postgres:
+```
+CREATE DATABASE airflow;
+CREATE USER airflow WITH PASSWORD 'airflow';
+GRANT ALL PRIVILEGES ON DATABASE airflow TO airflow;
+\q
+exit
+```
+-----------------------------------------------------------------------------------------------------------------------------------------
+**Step 7: Start RabbitMQ**
+```
+service rabbitmq-server start
+```
+Enable management:
+```
+rabbitmq-plugins enable rabbitmq_management
+```
+Check:
+```
+rabbitmqctl status
+```
+Management UI:
+```
+http://localhost:15672
+```
+Default:
+```
+guest or airflow or airflow
+guest or airflow or airflow123
+```
+-----------------------------------------------------------------------------------------------------------------------------------------
 
 
 
