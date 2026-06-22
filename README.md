@@ -347,6 +347,89 @@ airflow users create \
   --email admin@test.com
   ```
 -----------------------------------------------------------------------------------------------------------------------------------------
+**Step 13: Create Worker-1 Container**
+```
+docker run -dit \
+--name worker1 \
+--hostname worker1 \
+--network airflow-net \
+ubuntu:22.04
+```
+Login:
+```
+docker exec -it worker1 bash
+```
+Install:
+```
+apt update
+apt install -y \
+python3 \
+python3-pip \
+python3-venv
+```
+Create venv:
+```
+python3 -m venv /opt/airflow_venv
+source /opt/airflow_venv/bin/activate
+```
+Install Airflow:
+```
+pip install \
+"apache-airflow[celery,postgres,rabbitmq]==2.7.2" \
+--constraint \
+https://raw.githubusercontent.com/apache/airflow/constraints-2.7.2/constraints-3.10.txt
+```
+-----------------------------------------------------------------------------------------------------------------------------------------
+**Step 14: Configure Worker-1**
+```
+export AIRFLOW_HOME=/opt/airflow
+mkdir -p $AIRFLOW_HOME
+```
+Generate config:
+```
+airflow db init
+```
+Edit:
+```
+vim $AIRFLOW_HOME/airflow.cfg
+```
+Set:
+```
+executor = CeleryExecutor
+broker_url = amqp://guest:guest@airflow-master:5672//
+result_backend = db+postgresql://airflow:airflow@airflow-master:5432/airflow
+```
+if any issues happen while deploying like Time zone mismatch follow below commands
+
+Fix
+
+Install timezone package:
+```
+apt update
+apt install -y tzdata
+```
+Configure timezone:
+```
+ln -sf /usr/share/zoneinfo/Asia/Kolkata /etc/localtime
+echo "Asia/Kolkata" > /etc/timezone
+```
+Then export:
+```
+export TZ=Asia/Kolkata
+```
+Add permanently:
+```
+echo "export TZ=Asia/Kolkata" >> ~/.bashrc
+source ~/.bashrc
+```
+Test:
+```
+python3 -c "import pendulum; print(pendulum.now())"
+```
+-----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
 
 
 
