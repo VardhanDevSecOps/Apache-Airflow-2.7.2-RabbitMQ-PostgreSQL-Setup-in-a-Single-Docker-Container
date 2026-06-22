@@ -7,30 +7,30 @@ Rabbitmq not work message please go through below..
 3. sudo chmod 400 /var/lib/rabbitmq/.erlang.cookie
 
 Then run:
-```
+
 sudo rabbitmq-plugins enable rabbitmq_management
-```
+
 or switch to rabbitmq user:
-```
+
 sudo su - rabbitmq
 rabbitmq-plugins enable rabbitmq_management
-```
+
 Verify plugin
-```
+
 rabbitmq-plugins list | grep management
-```
+
 Still getting issue means
-```
+
 Restart RabbitMQ
-```
-```
+
+
 sudo systemctl restart rabbitmq-server
-```
+
 or if Docker:
-```
+
 docker restart <rabbitmq_container>
-```
+
 Check RabbitMQ Process
-```
+
 ps -ef | grep rabbit & rabbitmq-server
-```
+
