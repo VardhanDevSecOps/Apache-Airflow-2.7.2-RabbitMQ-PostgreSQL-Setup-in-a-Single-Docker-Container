@@ -124,6 +124,51 @@ vim \
 net-tools
 ```
 -----------------------------------------------------------------------------------------------------------------------------------------
+**Step 4: Create Airflow Virtual Environment**
+```
+python3 -m venv /opt/airflow_venv
+```
+```
+source /opt/airflow_venv/bin/activate
+```
+Upgrade pip:
+```
+pip install --upgrade pip
+```
+-----------------------------------------------------------------------------------------------------------------------------------------
+**Step 5: Install Airflow 2.7.2**
+```
+AIRFLOW_VERSION=2.7.2
+PYTHON_VERSION=3.10
+```
+```
+pip install \
+"apache-airflow[celery,postgres,rabbitmq]==2.7.2" \
+--constraint \
+https://raw.githubusercontent.com/apache/airflow/constraints-2.7.2/constraints-3.10.txt
+```
+Verify:
+```
+airflow version
+```
+Expected:
+```
+2.7.2
+```
+-----------------------------------------------------------------------------------------------------------------------------------------
+**Step 6: Start PostgreSQL**
+```
+
+```
+
+
+
+
+
+
+
+
+
 
 
 
