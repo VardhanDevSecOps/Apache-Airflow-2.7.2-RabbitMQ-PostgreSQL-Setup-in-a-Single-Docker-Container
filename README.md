@@ -269,9 +269,10 @@ export AIRFLOW_HOME=/opt/airflow
 airflow scheduler
 ```
 Leave running.
+
 -----------------------------------------------------------------------------------------------------------------------------------------
 
-**Erro's for airflow scheduler not wokring**
+**Error's for airflow scheduler not wokring**
 
 If you found the ERROR - Exception when running scheduler job Traceback (most recent call last), go for below soultion.
 
