@@ -197,16 +197,156 @@ Default:
 guest or airflow or airflow
 guest or airflow or airflow123
 ```
+After successful execution Rabbitmq will show below
+
+<img width="1580" height="324" alt="Screenshot 2026-06-22 at 6 20 50 PM" src="https://github.com/user-attachments/assets/82e6a4a8-506f-41cc-b162-72f0b771d3da" />
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------
+**Step 8: Initialize Airflow**
+Set home:
+```
+export AIRFLOW_HOME=/opt/airflow
+```
+Create:
+```
+mkdir -p $AIRFLOW_HOME
+```
+Initialize:
+```
+airflow db init
+```
+-----------------------------------------------------------------------------------------------------------------------------------------
+**Step 9: Configure Airflow**
+Edit:
+```
+vim $AIRFLOW_HOME/airflow.cfg
+```
+Change:
+
+Executor
+```
+executor = CeleryExecutor
+```
+SQLAlchemy
+```
+sql_alchemy_conn = postgresql+psycopg2://airflow:airflow@localhost:5432/airflow
+```
+Broker
+```
+broker_url = amqp://guest:guest@localhost:5672//
+```
+Result Backend
+```
+result_backend = db+postgresql://airflow:airflow@localhost:5432/airflow
+```
+Load Examples
+```
+load_examples = False
+```
+-----------------------------------------------------------------------------------------------------------------------------------------
+**Step 10: Create Admin User**
+```
+airflow users create \
+--username admin \
+--password admin \
+--firstname Admin \
+--lastname User \
+--role Admin \
+--email admin@test.com
+```
+-----------------------------------------------------------------------------------------------------------------------------------------
+**Step 11: Start Scheduler**
+
+Open terminal inside container:
+```
+source /opt/airflow_venv/bin/activate
+```
+```
+export AIRFLOW_HOME=/opt/airflow
+```
+```
+airflow scheduler
+```
+Leave running.
 -----------------------------------------------------------------------------------------------------------------------------------------
 
+**Erro's for airflow scheduler not wokring**
 
+If you found the ERROR - Exception when running scheduler job Traceback (most recent call last), go for below soultion.
 
+Verify Current Database Configuration
 
+Run:
+```
+airflow config get-value database sql_alchemy_conn
+```
+If you see something like:
+```
+sqlite:////home/postgres/airflow/airflow.db
+```
+or
+```
+sqlite:////root/airflow/airflow.db
+```
+then Airflow is still using SQLite.
 
+If using SQLite temporarily:
+```
+sudo chown -R postgres:postgres $AIRFLOW_HOME
+chmod -R 755 $AIRFLOW_HOME
+chmod 664 $AIRFLOW_HOME/airflow.db
+```
+Then:
+```
+airflow db migrate
+airflow scheduler
+```
+-----------------------------------------------------------------------------------------------------------------------------------------
+**Step 12: Start Webserver**
 
+New terminal:
+```
+docker exec -it airflow-master bash
+```
+```
+source /opt/airflow_venv/bin/activate
+```
+```
+export AIRFLOW_HOME=/opt/airflow
+```
+```
+airflow webserver --port 8080
+```
+After successful below UI display & Password admin, admin123
 
+<img width="1662" height="447" alt="Screenshot 2026-06-22 at 7 31 31 PM" src="https://github.com/user-attachments/assets/91df4baa-f60e-406d-b71c-4d1685c8431d" />
 
+<img width="1674" height="454" alt="Screenshot 2026-06-22 at 7 45 54 PM" src="https://github.com/user-attachments/assets/91da0828-5a8f-44c5-ac31-d5761a992d34" />
 
+In case any login issue, delete admin user, which you created earlier & re-create it with below
+
+Reset the admin password:
+```
+airflow users reset-password \
+  --username admin \
+  --password admin123
+```
+If your Airflow version doesn't support reset-password, run:
+```
+airflow users delete --username admin
+```
+Then recreate:
+```
+airflow users create \
+  --username admin \
+  --password admin123 \
+  --firstname Admin \
+  --lastname User \
+  --role Admin \
+  --email admin@test.com
+  ```
+-----------------------------------------------------------------------------------------------------------------------------------------
 
 
 
