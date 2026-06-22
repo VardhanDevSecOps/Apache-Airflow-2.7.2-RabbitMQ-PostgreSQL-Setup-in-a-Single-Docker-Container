@@ -1,3 +1,25 @@
++------------------------------------------------+
+| Master Container                               |
+|------------------------------------------------|
+| PostgreSQL                                     |
+| RabbitMQ                                       |
+| Airflow Scheduler                              |
+| Airflow Webserver                              |
++-------------------+----------------------------+
+                    |
+                    |
+         RabbitMQ Broker
+                    |
+      +-------------+--------------+
+      |                            |
+      |                            |
++-----v------+             +-------v------+
+| Worker-1   |             | Worker-2     |
+| Celery     |             | Celery       |
+| Worker     |             | Worker       |
++------------+             +--------------+
+
+------------------------------------------------------------------------------
 Deploy the following components inside a single Docker container:
 
 ◉ Apache Airflow 2.7.2
