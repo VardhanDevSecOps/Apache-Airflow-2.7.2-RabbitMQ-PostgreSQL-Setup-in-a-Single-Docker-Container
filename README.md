@@ -427,7 +427,34 @@ Test:
 ```
 python3 -c "import pendulum; print(pendulum.now())"
 ```
+<img width="927" height="567" alt="Screenshot 2026-06-22 at 8 22 15 PM" src="https://github.com/user-attachments/assets/c7ae08e4-a74d-4e57-91c9-7c2c3de7d82d" />
+
 -----------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
