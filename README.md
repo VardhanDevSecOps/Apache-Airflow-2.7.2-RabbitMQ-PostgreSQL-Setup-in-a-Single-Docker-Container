@@ -851,7 +851,6 @@ Expected:
 
 ```
 celery@worker1 ready
-```
 
 The Rabbitmq Dashboard looks like this
 
