@@ -555,13 +555,14 @@ Check if PostgreSQL is running on airflow-master
 ```
 ps -ef | grep postgres
 ```
-If PostgreSQL is running, you'll see several postgres processes.
 
+If PostgreSQL is running, you'll see several postgres processes.
 If nothing appears, PostgreSQL is not running.
 
 If PostgreSQL is installed locally on airflow-master
 
 Check status:
+
 ```
 service postgresql status
 ```
@@ -569,129 +570,176 @@ or
 ```
 systemctl status postgresql
 ```
+
 Start it if needed:
+
 ```
 service postgresql start
 ```
 Test connectivity from worker
 
 After installing netcat:
+
 ```
 nc -zv airflow-master 5432
 ```
+
 Expected:
+
 ```
 Connection to airflow-master 5432 port [tcp/postgresql] succeeded
 ```
+
 Most important command now
 
 On airflow-master, please send the output of:
+
 ```
 ps -ef | grep postgres
 ```
 and
+
 ```
 netstat -tulpn | grep 5432
 ```
+
 If netstat is missing:
+
 ```
 apt install -y net-tools
 ```
+
 Check on Master cluster
+
 ```
 ps -ef | grep postgres
 ```
+
 If it's working fine ok or go with below commands
 
 **Step 6: Edit postgresql.conf**
 
 On airflow-master:
+
 ```
 vi /etc/postgresql/14/main/postgresql.conf
 ```
+
 Find:
+
 ```
 #listen_addresses = 'localhost'
 ```
+
 Change to:
+
 ```
 listen_addresses = '*'
 ```
+
 Save.
 
 **Step 7: Edit pg_hba.conf**
 
 Open:
+
 ```
 vi /etc/postgresql/14/main/pg_hba.conf
 ```
+
 Add this line at the bottom:
+
 ```
 host    all     all     172.22.0.0/16     md5
 ```
+
 Since your Docker network is:
+
 ```
 airflow-master = 172.22.0.2
 ```
+
 This allows workers on that network to connect.
 
 For testing you can temporarily use:
+
 ```
 host    all     all     0.0.0.0/0     md5
 ```
+
 (Only for lab environments.)
 
 **Step 8: Restart PostgreSQL**
+
 ```
 service postgresql restart
 ```
+
 Verify:
+
 ```
 netstat -tulpn | grep 5432
 ```
+
 Expected:
+
 ```
 tcp 0 0 0.0.0.0:5432 0.0.0.0:* LISTEN
 ```
+
 or
+
 ```
 tcp6 0 0 :::5432 :::* LISTEN
 ```
+
 **Step 9: Test From Worker**
 
 On Worker1:
+
 ```
 nc -zv airflow-master 5432
 ```
+
 Expected:
+
 ```
 Connection to airflow-master 5432 port [tcp/postgresql] succeeded
 ```
+
 **Step 10: Test PostgreSQL Login**
 
 On Worker1 install client:
+
 ```
 apt update
 apt install -y postgresql-client
 ```
+
 Then:
+
 ```
 psql -h airflow-master \
      -U airflow \
      -d airflow
 ```
+
 If prompted:
+
 ```
 export PGPASSWORD=airflow
 ```
+
 Then retry.
 
 **Step 11: Start Worker**
 
 Once PostgreSQL connectivity works:
+
 ```
 airflow celery worker
 ```
+
 The worker should register successfully.
 
 If still not able to login with Rabbitmq server, Enter the below commands
@@ -699,81 +747,112 @@ If still not able to login with Rabbitmq server, Enter the below commands
 **On airflow-master**
 
 Check RabbitMQ users:
+
 ```
 rabbitmqctl list_users
 ```
+
 You will likely see:
+
 ```
 guest   [administrator]
 ```
 
 Create Airflow User
+
 ```
 rabbitmqctl add_user airflow airflow123
 ```
+
 Grant permissions:
+
 ```
 rabbitmqctl set_user_tags airflow administrator
+
 ```
 rabbitmqctl set_permissions -p / airflow ".*" ".*" ".*"
 ```
+
 Verify:
+
 ```
 rabbitmqctl list_users
 ```
+
 Expected:
+
 ```
 guest
 airflow
 Test RabbitMQ Login
 ```
+
 On worker:
+
 ```
 telnet airflow-master 5672
 ```
+
 Should connect.
 
 Update Airflow Broker URL
 
 Check current value:
+
 ```
 airflow config get-value celery broker_url
 ```
+
 You probably have:
+
 ```
 amqp://guest:guest@airflow-master:5672//
 ```
 Change it in airflow.cfg:
 ```
+
 vi ~/airflow/airflow.cfg
 ```
+
 Find:
+
 ```
 broker_url = amqp://guest:guest@airflow-master:5672//
 ```
+
 Replace:
+
 ```
 broker_url = amqp://airflow:airflow123@airflow-master:5672//
 ```
+
 Or export:
+
 ```
 export AIRFLOW__CELERY__BROKER_URL='amqp://airflow:airflow123@airflow-master:5672//'
 ```
+
 Verify RabbitMQ
 
 On master:
+
 ```
 rabbitmqctl list_connections
 ```
+
 After worker starts you should see an active connection.
+
 ```
 Start Worker Again
 airflow celery worker
 ```
+
 Expected:
+
 ```
 celery@worker1 ready
 ```
+
 The Rabbitmq Dashboard looks like this
 
 <img width="1649" height="755" alt="Screenshot 2026-06-23 at 1 42 34 PM" src="https://github.com/user-attachments/assets/da8a27c4-4c2a-4398-83a3-76be15d1b875" />
