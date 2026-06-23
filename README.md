@@ -397,8 +397,14 @@ vim $AIRFLOW_HOME/airflow.cfg
 Set:
 ```
 executor = CeleryExecutor
-broker_url = amqp://guest:guest@airflow-master:5672//
+
+broker_url = amqp://airflow:airflow123@airflow-master:5672//
+
 result_backend = db+postgresql://airflow:airflow@airflow-master:5432/airflow
+```
+or export:
+```
+export AIRFLOW__CELERY__BROKER_URL='amqp://airflow:airflow123@airflow-master:5672//'
 ```
 if any issues happen while deploying like Time zone mismatch follow below commands
 
@@ -431,12 +437,350 @@ python3 -c "import pendulum; print(pendulum.now())"
 
 -----------------------------------------------------------------------------------------------------------------------------------------
 
+**While deploying facing any issue, like connection refused or Rabbitmq logins, go with below commands**
 
+Step 1: Check PostgreSQL on Master
 
+On the Airflow Master container/server:
+```
+ps -ef | grep postgres
+```
+or
+```
+systemctl status postgresql
+```
+If running in Docker:
+```
+docker ps
+```
+Look for a PostgreSQL container.
 
+**Step 2: Verify Port 5432 is Listening**
 
+On Airflow Master:
+```
+ss -tulpn | grep 5432
+```
+Expected:
+```
+tcp LISTEN 0 244 0.0.0.0:5432
+```
+or
+```
+tcp LISTEN 0 244 127.0.0.1:5432
+```
+If nothing appears, PostgreSQL is not running.
 
+**Step 3: Test from Worker**
 
+On Worker1:
+```
+nc -zv airflow-master 5432
+```
+or
+```
+telnet airflow-master 5432
+```
+Expected:
+```
+Connection to airflow-master 5432 port [tcp/postgresql] succeeded
+```
+If you get:
+
+Connection refused
+
+PostgreSQL is down.
+
+If you get:
+
+No route to host
+
+Docker networking issue.
+
+**Step 4: Check Your Airflow DB Connection**
+
+On Worker1:
+```
+airflow config get-value database sql_alchemy_conn
+```
+It should look similar to:
+```
+postgresql+psycopg2://airflow:airflow@airflow-master:5432/airflow
+```
+**Step 5: Verify PostgreSQL Container Name**
+
+If using Docker:
+```
+docker ps -a
+```
+Example:
+```
+CONTAINER ID   IMAGE        NAMES
+abc123         postgres     postgres
+def456         airflow      airflow-master
+```
+If PostgreSQL is in a separate container called postgres, then your Airflow connection should be:
+```
+postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
+```
+NOT
+```
+postgresql+psycopg2://airflow:airflow@airflow-master:5432/airflow
+```
+unless PostgreSQL is actually running inside the airflow-master container.
+
+On Master
+```
+docker ps -a
+ss -tulpn | grep 5432
+```
+On Worker
+```
+airflow config get-value database sql_alchemy_conn
+nc -zv airflow-master 5432
+```
+Still you facing the issue with the command - ss -tulpn | grep 5432
+
+On the master and worker:
+```
+apt update
+apt install -y net-tools netcat-openbsd telnet
+```
+Then run:
+```
+netstat -tulpn | grep 5432
+Check if PostgreSQL is running on airflow-master
+```
+**On the master node:**
+```
+ps -ef | grep postgres
+```
+If PostgreSQL is running, you'll see several postgres processes.
+
+If nothing appears, PostgreSQL is not running.
+
+If PostgreSQL is installed locally on airflow-master
+
+Check status:
+```
+service postgresql status
+```
+or
+```
+systemctl status postgresql
+```
+Start it if needed:
+```
+service postgresql start
+```
+Test connectivity from worker
+
+After installing netcat:
+```
+nc -zv airflow-master 5432
+```
+Expected:
+```
+Connection to airflow-master 5432 port [tcp/postgresql] succeeded
+```
+Most important command now
+
+On airflow-master, please send the output of:
+```
+ps -ef | grep postgres
+```
+and
+```
+netstat -tulpn | grep 5432
+```
+If netstat is missing:
+```
+apt install -y net-tools
+```
+Check on Master cluster
+```
+ps -ef | grep postgres
+```
+If it's working fine ok or go with below commands
+
+**Step 6: Edit postgresql.conf**
+
+On airflow-master:
+```
+vi /etc/postgresql/14/main/postgresql.conf
+```
+Find:
+```
+#listen_addresses = 'localhost'
+```
+Change to:
+```
+listen_addresses = '*'
+```
+Save.
+
+**Step 7: Edit pg_hba.conf**
+
+Open:
+```
+vi /etc/postgresql/14/main/pg_hba.conf
+```
+Add this line at the bottom:
+```
+host    all     all     172.22.0.0/16     md5
+```
+Since your Docker network is:
+```
+airflow-master = 172.22.0.2
+```
+This allows workers on that network to connect.
+
+For testing you can temporarily use:
+```
+host    all     all     0.0.0.0/0     md5
+```
+(Only for lab environments.)
+
+**Step 8: Restart PostgreSQL**
+```
+service postgresql restart
+```
+Verify:
+```
+netstat -tulpn | grep 5432
+```
+Expected:
+```
+tcp 0 0 0.0.0.0:5432 0.0.0.0:* LISTEN
+```
+or
+```
+tcp6 0 0 :::5432 :::* LISTEN
+```
+**Step 9: Test From Worker**
+
+On Worker1:
+```
+nc -zv airflow-master 5432
+```
+Expected:
+```
+Connection to airflow-master 5432 port [tcp/postgresql] succeeded
+```
+**Step 10: Test PostgreSQL Login**
+
+On Worker1 install client:
+```
+apt update
+apt install -y postgresql-client
+```
+Then:
+```
+psql -h airflow-master \
+     -U airflow \
+     -d airflow
+```
+If prompted:
+```
+export PGPASSWORD=airflow
+```
+Then retry.
+
+**Step 11: Start Worker**
+
+Once PostgreSQL connectivity works:
+```
+airflow celery worker
+```
+The worker should register successfully.
+
+If still not able to login with Rabbitmq server, Enter the below commands
+
+**On airflow-master**
+
+Check RabbitMQ users:
+```
+rabbitmqctl list_users
+```
+You will likely see:
+```
+guest   [administrator]
+```
+
+Create Airflow User
+```
+rabbitmqctl add_user airflow airflow123
+```
+Grant permissions:
+```
+rabbitmqctl set_user_tags airflow administrator
+```
+rabbitmqctl set_permissions -p / airflow ".*" ".*" ".*"
+```
+Verify:
+```
+rabbitmqctl list_users
+```
+Expected:
+```
+guest
+airflow
+Test RabbitMQ Login
+```
+On worker:
+```
+telnet airflow-master 5672
+```
+Should connect.
+
+Update Airflow Broker URL
+
+Check current value:
+```
+airflow config get-value celery broker_url
+```
+You probably have:
+```
+amqp://guest:guest@airflow-master:5672//
+```
+Change it in airflow.cfg:
+```
+vi ~/airflow/airflow.cfg
+```
+Find:
+```
+broker_url = amqp://guest:guest@airflow-master:5672//
+```
+Replace:
+```
+broker_url = amqp://airflow:airflow123@airflow-master:5672//
+```
+Or export:
+```
+export AIRFLOW__CELERY__BROKER_URL='amqp://airflow:airflow123@airflow-master:5672//'
+```
+Verify RabbitMQ
+
+On master:
+```
+rabbitmqctl list_connections
+```
+After worker starts you should see an active connection.
+```
+Start Worker Again
+airflow celery worker
+```
+Expected:
+```
+celery@worker1 ready
+```
+The Rabbitmq Dashboard looks like this
+
+<img width="1649" height="755" alt="Screenshot 2026-06-23 at 1 42 34 PM" src="https://github.com/user-attachments/assets/da8a27c4-4c2a-4398-83a3-76be15d1b875" />
+
+With worke1 
+<img width="1660" height="552" alt="Screenshot 2026-06-23 at 1 44 12 PM" src="https://github.com/user-attachments/assets/0ea6b0f3-7ca9-43cb-bef0-a6b4ce9cc33b" />
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 
