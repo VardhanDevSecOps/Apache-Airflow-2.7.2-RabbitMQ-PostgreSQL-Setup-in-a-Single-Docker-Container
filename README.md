@@ -404,7 +404,7 @@ result_backend = db+postgresql://airflow:airflow@airflow-master:5432/airflow
 ```
 or export:
 ```
-export AIRFLOW__CELERY__BROKER_URL='amqp://airflow:airflow123@airflow-master:5672//'
+export AIRFLOW__CELERY__BROKER_URL='amqp://airflow:airflow123@airflow-master:5672//
 ```
 if any issues happen while deploying like Time zone mismatch follow below commands
 
@@ -437,7 +437,7 @@ python3 -c "import pendulum; print(pendulum.now())"
 
 -----------------------------------------------------------------------------------------------------------------------------------------
 
-**While deploying facing any issue, like connection refused or Rabbitmq logins, go with below commands**
+**While deploying if you facing any issue, like connection refused or Rabbitmq logins, go with below commands**
 
 Step 1: Check PostgreSQL on Master
 
@@ -861,9 +861,25 @@ The Rabbitmq Dashboard looks like this
 With worke1 
 <img width="1660" height="552" alt="Screenshot 2026-06-23 at 1 44 12 PM" src="https://github.com/user-attachments/assets/0ea6b0f3-7ca9-43cb-bef0-a6b4ce9cc33b" />
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------
+**Create the 2nd worker container**
 
+From terminal:
 
+```
+docker run -dit \
+--name worker2 \
+--hostname worker2 \
+--network airflow-net \
+ubuntu:22.04
+```
+Repeat the same installation steps as Worker1.
 
+Start:
+
+```
+airflow celery worker
+```
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 
