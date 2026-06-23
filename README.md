@@ -203,7 +203,7 @@ After successful execution Rabbitmq will show below
 
 
 -----------------------------------------------------------------------------------------------------------------------------------------
-**Step 8: Initialize Airflow**
+**Step 8: Initialize ƒ**
 Set home:
 ```
 export AIRFLOW_HOME=/opt/airflow
@@ -566,6 +566,7 @@ Check status:
 ```
 service postgresql status
 ```
+
 or
 ```
 systemctl status postgresql
@@ -592,7 +593,7 @@ Connection to airflow-master 5432 port [tcp/postgresql] succeeded
 
 Most important command now
 
-On airflow-master, please send the output of:
+On airflow-master,
 
 ```
 ps -ef | grep postgres
@@ -768,10 +769,9 @@ Grant permissions:
 
 ```
 rabbitmqctl set_user_tags airflow administrator
+```
 
-```
 rabbitmqctl set_permissions -p / airflow ".*" ".*" ".*"
-```
 
 Verify:
 
@@ -847,11 +847,13 @@ Start Worker Again
 ```
 airflow celery worker
 ```
+
 Expected:
 
 ```
 celery@worker1 ready
 ```
+
 The Rabbitmq Dashboard looks like this
 
 <img width="1649" height="755" alt="Screenshot 2026-06-23 at 1 42 34 PM" src="https://github.com/user-attachments/assets/da8a27c4-4c2a-4398-83a3-76be15d1b875" />
