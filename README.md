@@ -842,16 +842,16 @@ rabbitmqctl list_connections
 
 After worker starts you should see an active connection.
 
-```
 Start Worker Again
+
+```
 airflow celery worker
 ```
-
 Expected:
 
 ```
 celery@worker1 ready
-
+```
 The Rabbitmq Dashboard looks like this
 
 <img width="1649" height="755" alt="Screenshot 2026-06-23 at 1 42 34 PM" src="https://github.com/user-attachments/assets/da8a27c4-4c2a-4398-83a3-76be15d1b875" />
