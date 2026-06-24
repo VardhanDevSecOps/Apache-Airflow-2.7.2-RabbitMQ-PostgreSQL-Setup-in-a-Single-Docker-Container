@@ -435,6 +435,8 @@ executor = CeleryExecutor
 broker_url = amqp://airflow:airflow123@airflow-master:5672//
 
 result_backend = db+postgresql://airflow:airflow@airflow-master:5432/airflow
+
+sql_alchemy_conn = postgresql+psycopg2://user:password@airflow-master:5432/airflow
 ```
 or export:
 ```
