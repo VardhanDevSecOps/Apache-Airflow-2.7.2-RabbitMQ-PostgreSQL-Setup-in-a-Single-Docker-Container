@@ -201,7 +201,41 @@ After successful execution Rabbitmq will show below
 
 <img width="1580" height="324" alt="Screenshot 2026-06-22 at 6 20 50 PM" src="https://github.com/user-attachments/assets/82e6a4a8-506f-41cc-b162-72f0b771d3da" />
 
+**If login issues happen means use below commands for access Rabbitmq**
 
+**Create a New Admin User**
+
+Run the following commands:
+```
+rabbitmqctl add_user airflow airflow123
+```
+
+Give administrator permissions:
+```
+rabbitmqctl set_user_tags airflow administrator
+```
+
+Give full permissions:
+```
+rabbitmqctl set_permissions -p / airflow ".*" ".*" ".*"
+```
+List users:
+```
+rabbitmqctl list_users
+```
+
+Expected output:
+```
+Listing users ...
+user      tags
+guest     [administrator]
+airflow   [administrator]
+```
+Now log in using:
+```
+Username: airflow
+Password: airflow123
+```
 -----------------------------------------------------------------------------------------------------------------------------------------
 **Step 8: Initialize ƒ**
 Set home:
