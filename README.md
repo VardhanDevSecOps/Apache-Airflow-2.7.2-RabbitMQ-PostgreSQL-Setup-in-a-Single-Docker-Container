@@ -895,8 +895,28 @@ The Rabbitmq Dashboard looks like this
 <img width="1649" height="755" alt="Screenshot 2026-06-23 at 1 42 34 PM" src="https://github.com/user-attachments/assets/da8a27c4-4c2a-4398-83a3-76be15d1b875" />
 
 With worke1 
+
 <img width="1660" height="552" alt="Screenshot 2026-06-23 at 1 44 12 PM" src="https://github.com/user-attachments/assets/0ea6b0f3-7ca9-43cb-bef0-a6b4ce9cc33b" />
+
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+**You can also run the native Celery command on a machine that has access to the broker:**
+
+```
+celery -A airflow.providers.celery.executors.celery_executor.app status
+```
+or
+
+```
+celery -A airflow.providers.celery.executors.celery_executor.app inspect ping
+```
+
+This shows all active workers.
+
+<img width="1026" height="224" alt="Screenshot 2026-06-24 at 7 18 29 PM" src="https://github.com/user-attachments/assets/9f3b31c0-0273-4ce6-b4f4-fe36e780d339" />
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 **Create the 2nd worker container**
 
 From terminal:
