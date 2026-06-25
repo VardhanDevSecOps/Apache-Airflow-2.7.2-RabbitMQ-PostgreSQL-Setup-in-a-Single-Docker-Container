@@ -351,7 +351,7 @@ source /opt/airflow_venv/bin/activate
 export AIRFLOW_HOME=/opt/airflow
 ```
 ```
-airflow webserver --port 8080
+<img width="1667" height="439" alt="Screenshot 2026-06-25 at 11 46 04 AM" src="https://github.com/user-attachments/assets/37319295-b07e-4b18-a12f-4407b5bec0e6" />
 ```
 After successful below UI display & Password admin, admin123
 
@@ -937,9 +937,105 @@ airflow celery worker
 ```
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+**Create DAG Directory**
 
+**Master:**
+```
+mkdir -p /opt/airflow/dags
+```
+**DAG 1**
+```
+vim /opt/airflow/dags/dag_worker1.py
+```
+```
+from airflow import DAG
+from airflow.operators.bash import BashOperator
+from datetime import datetime
+
+with DAG(
+    dag_id="worker1_test",
+    start_date=datetime(2024,1,1),
+    schedule=None,
+    catchup=False
+) as dag:
+
+        task1 = BashOperator(
+        task_id="worker1_task",
+        bash_command="hostname",
+        queue="worker1",
+    )
+```
+**DAG 2**
+
+```
+vim /opt/airflow/dags/dag_worker2.py
+```
+```
+from airflow import DAG
+from airflow.operators.bash import BashOperator
+from datetime import datetime
+
+with DAG(
+    dag_id="worker1_test",
+    start_date=datetime(2024,1,1),
+    schedule=None,
+    catchup=False
+) as dag:
+
+        task1 = BashOperator(
+        task_id="worker2_task",
+        bash_command="hostname",
+        queue="worker2",
+    )
+```
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+**Restart Scheduler**
+```
+pkill -f scheduler
+airflow scheduler
+```
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+**Open Airflow UI**
+```
+http://YOUR_SERVER_IP:8080
+```
+**Login:**
+```
+admin
+admin
+```
+**You should see:**
+```
+worker1_test
+worker2_test
+```
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+**Trigger DAGs**
+
+**CLI:**
+```
+airflow dags trigger worker1_test
+airflow dags trigger worker2_test
+```
+or from UI:
+```
+Airflow UI
+→ DAGs
+→ worker1_test
+→ Trigger
+```
+```
+Airflow UI
+→ DAGs
+→ worker2_test
+→ Trigger
+```
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
 <img width="1667" height="439" alt="Screenshot 2026-06-25 at 11 46 04 AM" src="https://github.com/user-attachments/assets/461a92b7-2645-48be-9f4c-33a8555d7071" />
 
+<img width="1667" height="439" alt="Screenshot 2026-06-25 at 11 46 04 AM" src="https://github.com/user-attachments/assets/3ef9e4dc-b23d-4a4a-8b64-9a227f9cbfc6" />
+<img width="1663" height="796" alt="Screenshot 2026-06-25 at 7 12 23 PM" src="https://github.com/user-attachments/assets/ff1baae9-7950-4c8f-bd82-c8717e8202fb" />
 
 
 
