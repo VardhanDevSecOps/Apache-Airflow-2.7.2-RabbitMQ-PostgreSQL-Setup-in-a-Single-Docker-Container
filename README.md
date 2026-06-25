@@ -1034,7 +1034,9 @@ Airflow UI
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------
 <img width="1667" height="439" alt="Screenshot 2026-06-25 at 11 46 04 AM" src="https://github.com/user-attachments/assets/461a92b7-2645-48be-9f4c-33a8555d7071" />
 
-<img width="1667" height="439" alt="Screenshot 2026-06-25 at 11 46 04 AM" src="https://github.com/user-attachments/assets/3ef9e4dc-b23d-4a4a-8b64-9a227f9cbfc6" />
+<img width="1665" height="785" alt="Screenshot 2026-06-25 at 8 47 52 PM" src="https://github.com/user-attachments/assets/07c4e130-d183-4728-ab17-1bdbb4c1736c" />
+<img width="1664" height="443" alt="Screenshot 2026-06-25 at 7 11 21 PM" src="https://github.com/user-attachments/assets/aad85468-43ff-41d7-9959-61b5f3f0d59e" />
+
 <img width="1663" height="796" alt="Screenshot 2026-06-25 at 7 12 23 PM" src="https://github.com/user-attachments/assets/ff1baae9-7950-4c8f-bd82-c8717e8202fb" />
 
 
