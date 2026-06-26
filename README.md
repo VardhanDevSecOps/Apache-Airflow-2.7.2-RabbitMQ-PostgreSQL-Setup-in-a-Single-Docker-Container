@@ -1038,18 +1038,67 @@ Airflow UI
 <img width="1664" height="443" alt="Screenshot 2026-06-25 at 7 11 21 PM" src="https://github.com/user-attachments/assets/aad85468-43ff-41d7-9959-61b5f3f0d59e" />
 
 <img width="1663" height="796" alt="Screenshot 2026-06-25 at 7 12 23 PM" src="https://github.com/user-attachments/assets/ff1baae9-7950-4c8f-bd82-c8717e8202fb" />
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+Common Error's
 
+1. Give correct path directory for Dag's placed like Root directory "/root/airflow/dags/"
+2. You can check with echo $AIRFLOW_HOME
+3. After creating Dag use this command, if any error's came it will show with this command - python /opt/airflow/dags/dag_worker1.py
+4. You will see the dag's with below commands
+```
+   airflow dags list | grep worker
+```
+Expected:
+```
+worker1_test
+worker2_test
+```
+5. You will found the dags folder by using below commands
+```
+   airflow config get-value core dags_folder
+```
+6. When ever changes anything in the worker machine's use below commands & restart workers
+```
+pkill -f celery
+pkill -f gunicorn
 
+airflow celery worker
+```
+7. While executing SCP command not working means work on below commands on worker & master machines
 
+```
+apt update
+apt install -y openssh-server
+systemctl enable ssh
+systemctl start ssh
+systemctl status ssh
+```
+8. If you are using docker yaml file means mount the dags & worker folder correct
+```
+   services:
 
+  airflow-master:
+    volumes:
+      - ./dags:/root/airflow/dags
 
+  worker1:
+    volumes:
+      - ./dags:/root/airflow/dags
 
+  worker2:
+    volumes:
+      - ./dags:/root/airflow/dags
+```
 
-
-
-
-
+9. Below should be with Proper format not in user format
+```
+    Example: result_backend = db+postgresql://airflow:airflow@airflow-master:5432/airflow
+ ```
+```  
+sql_alchemy_conn, Broker_url, result_backend, Executor
+airflow config get-value database sql_alchemy_conn
+```
 
 
 
